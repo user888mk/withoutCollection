@@ -6,31 +6,27 @@ import java.util.regex.Pattern;
 public class StringContainer {
 
     Container head;
-    static  String  regex;
+    String regex;
 
-    public StringContainer(Container head) {
-        this.head = head;
-    }
+    boolean duplicatedNotAllowed = false;
 
-    public String getRegex() {
-        return regex;
+    public StringContainer(String regex, boolean duplicatedNotAllowed) {
+        this.regex = regex;
+        this.duplicatedNotAllowed = duplicatedNotAllowed;
     }
 
     public StringContainer(String regex) {
-        regex = regex;
+        this.regex = regex;
     }
 
     public StringContainer() {
     }
 
     public static StringContainer fromFile(File file) {
-        //load data from file to StringContainer
-
         File path = new File("src/main/resources/" + file);
 
-
         try (Scanner scanner = new Scanner(path)) {
-            StringContainer stringContainer = null;
+            StringContainer stringContainer = new StringContainer();
 
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
@@ -38,13 +34,9 @@ public class StringContainer {
                 String data = split[0];
                 if (data != null) {
 
-
                     Container container = new Container();
                     container.data = data;
-
-                    stringContainer = new StringContainer();
-                    stringContainer.add(data);
-                    System.out.println(stringContainer);
+                    stringContainer.addWithoutCheck(data);
                 }
             }
             return stringContainer;
@@ -54,6 +46,23 @@ public class StringContainer {
         }
     }
 
+
+    private void addWithoutCheck(String data) {
+
+        Container container = new Container();
+        container.data = data;
+
+        if (head == null) {
+            head = container;
+            container.next = null;
+        } else {
+            Container n = head;
+            while (n.next != null) {
+                n = n.next;
+            }
+            n.next = container;
+        }
+    }
 
     public void add(String data) {
 
@@ -66,19 +75,42 @@ public class StringContainer {
         if (!matcher.find()) {
             throw new InvalidStringContainerValueException("badValue");
         }
-
         if (head == null) {
             head = container;
             container.next = null;
         } else {
-            //przechodzenie po elementach i szukanie ostatniego
             Container n = head;
             while (n.next != null) {
-                //podmiana referencji zeby przehsc do kolejnego kontenera
                 n = n.next;
             }
             n.next = container;
         }
+
+        if (this.duplicatedNotAllowed) {
+            Container container1 = head;
+            int counter = 0;
+            while (container1.next != null) {
+                if (data.equals(container1.data)) {
+                    counter++;
+                }
+                container1 = container1.next;
+            }
+            if (counter >= 1) {
+                throw new InvalidStringContainerValueException("duplicatedValue");
+            }
+        }
+    }
+
+
+    public int size() {
+        int counter = 1;
+        Container n = head;
+
+        while (n.next != null) {
+            counter++;
+            n = n.next;
+        }
+        return counter;
     }
 
     public void show() {
@@ -124,18 +156,6 @@ public class StringContainer {
 
     }
 
-    public int size() {
-        int counter = 1;
-        Container n = head;
-
-        while (n.next != null) {
-            counter++;
-            n = n.next;
-        }
-        //   System.out.println(counter);
-        return counter;
-    }
-
     public String get(int data) {
 
         Container n = head;
@@ -168,15 +188,36 @@ public class StringContainer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    @Override
+    public boolean equals(Object stringContainer) {
+        StringContainer p = (StringContainer) stringContainer;
+        StringContainer l = this;
+
+        if (p.size() != l.size()) {
+            return false;
+        }
+        int size = p.size();
+        Container pc = p.head;
+        Container lc = l.head;
+
+        for (int i = 0; i < size; i++) {
+
+            if (!lc.data.equals(pc.data)) {
+                return false;
+            }
+            pc = pc.next;
+            lc = lc.next;
+        }
+        return true;
     }
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("StringContainer{");
-        sb.append("head=").append(head);
-        sb.append(", regex='").append(regex).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "StringContainer{" +
+                "head=" + head +
+                ", regex='" + regex + '\'' +
+                '}';
     }
 }
