@@ -11,13 +11,16 @@ public class StringContainer {
     boolean duplicatedNotAllowed = false;
 
     public StringContainer(String regex, boolean duplicatedNotAllowed) {
+        if (regex == null) {
+            throw new InvalidStringContainerValueException("Regex must not be null");
+        }
         this.pattern = Pattern.compile(regex);
         this.duplicatedNotAllowed = duplicatedNotAllowed;
     }
 
     public StringContainer(String regex) {
         if (regex == null) {
-            throw new IllegalArgumentException("Regex must not be null");
+            throw new InvalidStringContainerValueException("Regex must not be null");
         }
         this.regex = regex;
     }
