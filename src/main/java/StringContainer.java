@@ -213,9 +213,10 @@ public class StringContainer {
 
     @Override
     public String toString() {
-        return "StringContainer{" +
-                "head=" + head +
-                ", regex='" + regex + '\'' +
-                '}';
+        final StringBuilder sb = new StringBuilder("StringContainer{");
+        sb.append("head=").append(head);
+        sb.append(", regex='").append(regex).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }
