@@ -7,22 +7,26 @@ public class StringContainer {
 
     Container head;
     String regex;
-
+    private Pattern pattern;
     boolean duplicatedNotAllowed = false;
 
     public StringContainer(String regex, boolean duplicatedNotAllowed) {
-        this.regex = regex;
+        this.pattern = Pattern.compile(regex);
         this.duplicatedNotAllowed = duplicatedNotAllowed;
     }
 
     public StringContainer(String regex) {
+        if (regex == null) {
+            throw new IllegalArgumentException("Regex must not be null");
+        }
         this.regex = regex;
     }
 
-    public StringContainer() {
+    private StringContainer() {
     }
 
     public static StringContainer fromFile(File file) {
+
         File path = new File("src/main/resources/" + file);
 
         try (Scanner scanner = new Scanner(path)) {
@@ -42,10 +46,9 @@ public class StringContainer {
             return stringContainer;
 
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException("File not found");
         }
     }
-
 
     private void addWithoutCheck(String data) {
 
@@ -69,8 +72,7 @@ public class StringContainer {
         Container container = new Container();
         container.data = data;
 
-        Pattern pattern = Pattern.compile(this.regex);
-        Matcher matcher = pattern.matcher(data);
+        Matcher matcher = this.pattern.matcher(data);
 
         if (!matcher.find()) {
             throw new InvalidStringContainerValueException("badValue");
@@ -81,23 +83,12 @@ public class StringContainer {
         } else {
             Container n = head;
             while (n.next != null) {
+                if ((n.data.equals(data) || (n.next.next == null && n.next.data.equals(data))) && duplicatedNotAllowed) {
+                    throw new DuplicatedElementOnListException("Duplicated not allow");
+                }
                 n = n.next;
             }
             n.next = container;
-        }
-
-        if (this.duplicatedNotAllowed) {
-            Container container1 = head;
-            int counter = 0;
-            while (container1.next != null) {
-                if (data.equals(container1.data)) {
-                    counter++;
-                }
-                container1 = container1.next;
-            }
-            if (counter >= 1) {
-                throw new InvalidStringContainerValueException("duplicatedValue");
-            }
         }
     }
 
@@ -149,11 +140,13 @@ public class StringContainer {
             while (!c.data.equals(inputData)) {
                 c1 = c;
                 c = c.next;
+                if (c == null) {
+                    throw new IllegalArgumentException("Bad value ");
+                }
             }
             c1.next = c.next;
             c = null;
         }
-
     }
 
     public String get(int data) {
@@ -168,9 +161,8 @@ public class StringContainer {
             }
             n = n.next;
         }
-        return null;
+        throw new IndexOutOfBoundsException("Data must have correct value ");
     }
-
 
     public void persist(File file) {
 
@@ -186,12 +178,18 @@ public class StringContainer {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException("File not found");
         }
     }
 
     @Override
     public boolean equals(Object stringContainer) {
+        if (stringContainer == null)
+            return false;
+
+        if (this.getClass() != stringContainer.getClass())
+            return false;
+
         StringContainer p = (StringContainer) stringContainer;
         StringContainer l = this;
 

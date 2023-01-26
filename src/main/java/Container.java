@@ -2,7 +2,22 @@ public class Container {
     String data;
     Container next;
 
+    public Container(String data) {
+    }
+
     public Container() {
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public Container getNext() {
+        return next;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 
     @Override
