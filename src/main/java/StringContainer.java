@@ -4,9 +4,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringContainer {
-
-    Container head;
-    String regex;
+    private Container head;
+    private String regex;
     private Pattern pattern;
     boolean duplicatedNotAllowed = false;
 

@@ -1,6 +1,6 @@
 public class Container {
-    String data;
-    Container next;
+    protected String data;
+    protected Container next;
 
     public Container() {
     }
